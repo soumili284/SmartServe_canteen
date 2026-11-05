@@ -1,0 +1,22 @@
+# SmartServe Canteen Menu Data
+# Format: TYPE;id;name;price;...
+FOOD;101;Masala Dosa;60;1;0;Medium;8;39;1
+FOOD;102;Idli Sambar (2 pcs);40;1;0;Mild;5;50;1
+FOOD;103;Indori Poha with Sev;35;1;0;Mild;4;45;1
+FOOD;104;Aloo Paratha with Curd;50;1;0;Medium;10;35;1
+FOOD;201;Special Veg Thali;120;2;0;Medium;12;30;1
+FOOD;202;Hyderabadi Chicken Biryani;160;2;1;Spicy;10;35;1
+FOOD;203;Paneer Butter Masala + Naan;140;2;0;Medium;12;25;1
+FOOD;204;Dilli Rajma Chawal Bowl;80;2;0;Medium;6;40;1
+FOOD;301;Crispy Samosa (2 pcs);30;3;0;Spicy;3;60;1
+FOOD;302;Veg Cheese Grilled Sandwich;70;3;0;Mild;7;30;1
+FOOD;303;Paneer Tikka Kathi Roll;85;3;0;Spicy;8;25;1
+FOOD;304;Peri Peri French Fries;65;3;2;Spicy;6;40;1
+BEV;401;Adrak Masala Chai;15;4;1;150;1;98;1
+BEV;402;South Indian Filter Coffee;25;4;1;180;1;80;1
+BEV;403;Thick Cold Coffee w/ Cream;55;4;0;300;1;49;1
+BEV;404;Chilled Fresh Lime Soda;35;4;0;250;0;60;1
+FOOD;501;Hot Gulab Jamun (2 pcs);40;5;0;Mild;2;40;1
+FOOD;502;Warm Brownie with Vanilla;75;5;0;Mild;4;25;1
+COMBO;601;Campus Hunger Buster Combo;160;6;190;Veg Cheese Sandwich,Peri Peri Fries,Cold Coffee;19;1
+COMBO;602;Morning South Indian Combo;95;6;115;Masala Dosa,Idli (1 pc),Filter Coffee;25;1

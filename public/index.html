@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartServe – Smart College Canteen Ordering System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            },
+            canteen: {
+              orange: '#f97316',
+              amber: '#f59e0b',
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .ready-pulse {
+      animation: pulse-ring 2s infinite;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('menu')">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-utensils text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">SmartServe</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/30">C++ OOP</span>
+          </div>
+          <p class="text-xs text-slate-400">Campus Digital Canteen & Live Token System</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-800/60 p-1.5 rounded-2xl border border-slate-700/60 text-sm font-medium">
+        <button id="nav-menu" onclick="switchTab('menu')" class="px-4 py-2 rounded-xl transition-all duration-200 bg-brand-600 text-white shadow-sm flex items-center gap-2">
+          <i class="fa-solid fa-book-open"></i> Menu
+        </button>
+        <button id="nav-board" onclick="switchTab('board')" class="px-4 py-2 rounded-xl transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50 flex items-center gap-2">
+          <i class="fa-solid fa-tv"></i> Live Token Board
+          <span id="nav-active-count" class="px-2 py-0.5 rounded-full text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">0</span>
+        </button>
+        <button id="nav-track" onclick="switchTab('track')" class="px-4 py-2 rounded-xl transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50 flex items-center gap-2">
+          <i class="fa-solid fa-magnifying-glass"></i> Track Token
+        </button>
+        <button id="nav-kitchen" onclick="switchTab('kitchen')" class="px-4 py-2 rounded-xl transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50 flex items-center gap-2">
+          <i class="fa-solid fa-kitchen-set"></i> Kitchen Portal
+        </button>
+      </nav>
+
+      <!-- User Profile & Cart Button -->
+      <div class="flex items-center gap-3">
+        <!-- Profile Pill -->
+        <button onclick="openProfileModal()" class="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700/80 hover:border-slate-600 transition text-left">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs" id="nav-user-avatar">
+            RS
+          </div>
+          <div class="text-xs">
+            <p class="font-bold text-slate-200 leading-tight" id="nav-user-name">Rahul Sharma</p>
+            <p class="text-[10px] text-emerald-400 font-semibold" id="nav-user-role">Student (5% OFF)</p>
+          </div>
+          <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
+        </button>
+
+        <!-- Cart Button -->
+        <button onclick="toggleCartDrawer()" class="relative px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-semibold flex items-center gap-2.5 transition shadow-lg shadow-brand-600/30">
+          <i class="fa-solid fa-bag-shopping text-base"></i>
+          <span class="hidden sm:inline text-sm">Cart</span>
+          <span id="header-cart-count" class="w-6 h-6 rounded-full bg-white text-brand-700 text-xs font-extrabold flex items-center justify-center shadow-sm">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- TAB 1: MENU & ORDERING -->
+    <section id="tab-menu" class="space-y-6">
+      
+      <!-- Hero / Notice Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900/60 via-slate-900 to-amber-900/40 p-6 sm:p-8 border border-emerald-800/40 shadow-2xl">
+        <div class="relative z-10 max-w-2xl space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+            <i class="fa-solid fa-bolt"></i> Express College Canteen Kiosk
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Order Canteen Meals, <br class="hidden sm:inline">Skip the Queues with <span class="text-brand-400">Tokens</span>.
+          </h1>
+          <p class="text-sm text-slate-300">
+            Select your favorite snacks, authentic South Indian breakfast, thali meals or student combos. Receive your token number instantly upon payment!
+          </p>
+          <div class="flex flex-wrap items-center gap-3 pt-2 text-xs">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-percent text-emerald-400"></i> Student 5% | Faculty 10% Off
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-qrcode text-amber-400"></i> Instant UPI, Wallet & Cash
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-receipt text-indigo-400"></i> Auto Tax Invoices Saved
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filters Toolbar -->
+      <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-4 shadow-lg">
+        <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+          
+          <!-- Search input -->
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="menu-search-input" oninput="filterMenu()" placeholder="Search samosa, dosa, thali, coffee, combo..." 
+                   class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+          </div>
+
+          <!-- Dietary Filter Buttons -->
+          <div class="flex items-center gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700/80 text-xs font-semibold overflow-x-auto">
+            <button onclick="setDietaryFilter('ALL')" id="diet-ALL" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white transition">All Diets</button>
+            <button onclick="setDietaryFilter('VEG')" id="diet-VEG" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Veg
+            </button>
+            <button onclick="setDietaryFilter('NON_VEG')" id="diet-NON_VEG" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-red-400"></span> Non-Veg
+            </button>
+            <button onclick="setDietaryFilter('VEGAN')" id="diet-VEGAN" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-lime-400"></span> Vegan
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Category Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar text-xs font-medium">
+          <button onclick="setCategoryFilter(0)" id="cat-0" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800 text-white border border-brand-500/50 shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-border-all"></i> All Categories
+          </button>
+          <button onclick="setCategoryFilter(1)" id="cat-1" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-egg text-amber-400"></i> Breakfast
+          </button>
+          <button onclick="setCategoryFilter(2)" id="cat-2" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-bowl-rice text-emerald-400"></i> Main Course
+          </button>
+          <button onclick="setCategoryFilter(3)" id="cat-3" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-cookie-bite text-orange-400"></i> Snacks
+          </button>
+          <button onclick="setCategoryFilter(4)" id="cat-4" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-mug-hot text-cyan-400"></i> Beverages
+          </button>
+          <button onclick="setCategoryFilter(5)" id="cat-5" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-ice-cream text-pink-400"></i> Desserts
+          </button>
+          <button onclick="setCategoryFilter(6)" id="cat-6" class="category-pill whitespace-nowrap px-4 py-2 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-fire text-amber-500"></i> Student Combos
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu Food Cards Grid -->
+      <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- Dynamically rendered via JavaScript -->
+      </div>
+
+    </section>
+
+    <!-- TAB 2: LIVE DIGITAL TOKEN QUEUE BOARD -->
+    <section id="tab-board" class="hidden space-y-6">
+      
+      <!-- Digital Display Board Header -->
+      <div class="rounded-3xl bg-slate-900 border border-slate-800 p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <h2 class="text-2xl font-extrabold tracking-tight text-white">LIVE DIGITAL TOKEN BOARD</h2>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Simulates the real-time cafeteria LED status screens. Updated automatically every 3 seconds.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchTokens()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+          <button onclick="switchTab('kitchen')" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-semibold flex items-center gap-1.5 hover:bg-amber-500/30">
+            <i class="fa-solid fa-kitchen-set"></i> Kitchen Staff Advance
+          </button>
+        </div>
+      </div>
+
+      <!-- Three-column Board Display -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- COLUMN 1: PREPARING IN KITCHEN -->
+        <div class="rounded-3xl bg-slate-900 border border-amber-500/30 p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2 text-amber-400 font-bold text-sm tracking-wide uppercase">
+              <i class="fa-solid fa-fire-burner text-base"></i> Cooking In Kitchen
+            </div>
+            <span id="board-cooking-count" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-xs font-bold">0</span>
+          </div>
+          <div id="board-cooking-list" class="space-y-3 min-h-[300px]">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- COLUMN 2: READY FOR PICKUP -->
+        <div class="rounded-3xl bg-slate-900 border border-emerald-500/40 p-5 space-y-4 shadow-xl relative overflow-hidden">
+          <div class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm tracking-wide uppercase">
+              <i class="fa-solid fa-bell text-base animate-bounce"></i> Ready for Pickup!
+            </div>
+            <span id="board-ready-count" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold">0</span>
+          </div>
+          <div id="board-ready-list" class="space-y-3 min-h-[300px]">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- COLUMN 3: RECENTLY COMPLETED -->
+        <div class="rounded-3xl bg-slate-900 border border-slate-800 p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2 text-slate-400 font-bold text-sm tracking-wide uppercase">
+              <i class="fa-solid fa-circle-check text-base"></i> Collected / Done
+            </div>
+            <span id="board-completed-count" class="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono text-xs font-bold">0</span>
+          </div>
+          <div id="board-completed-list" class="space-y-3 min-h-[300px]">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- TAB 3: TRACK TOKEN -->
+    <section id="tab-track" class="hidden max-w-2xl mx-auto space-y-6">
+      <div class="rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="text-center space-y-2">
+          <div class="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 mx-auto flex items-center justify-center text-2xl">
+            <i class="fa-solid fa-ticket"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-white">Track Order by Token</h2>
+          <p class="text-xs text-slate-400">Enter the token number from your bill receipt to check live kitchen status.</p>
+        </div>
+
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-bold text-slate-400 text-sm">TK-</span>
+            <input type="number" id="track-token-input" placeholder="101" 
+                   class="w-full pl-12 pr-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 text-white font-mono text-lg font-bold focus:outline-none focus:border-brand-500">
+          </div>
+          <button onclick="trackTokenSubmit()" class="px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition">
+            Check Status
+          </button>
+        </div>
+
+        <div id="track-result-box" class="hidden">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: KITCHEN & ADMIN MANAGEMENT -->
+    <section id="tab-kitchen" class="hidden space-y-6">
+      
+      <!-- Analytics Header Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
+          <p class="text-xs text-slate-400">Total Gross Revenue</p>
+          <p class="text-2xl font-black text-brand-400 mt-1" id="stat-revenue">Rs. 0.00</p>
+        </div>
+        <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
+          <p class="text-xs text-slate-400">Total Orders Fulfilled</p>
+          <p class="text-2xl font-black text-white mt-1" id="stat-orders">0</p>
+        </div>
+        <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
+          <p class="text-xs text-slate-400">Active Cooking Queue</p>
+          <p class="text-2xl font-black text-amber-400 mt-1" id="stat-active">0</p>
+        </div>
+        <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4">
+          <p class="text-xs text-slate-400">Student vs Faculty</p>
+          <p class="text-lg font-bold text-slate-200 mt-1" id="stat-ratio">0 / 0</p>
+        </div>
+      </div>
+
+      <!-- Live Kitchen Order Queue Table -->
+      <div class="rounded-3xl bg-slate-900 border border-slate-800 p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-brand-400"></i> Active Kitchen Queue Dispatcher
+            </h3>
+            <p class="text-xs text-slate-400">Advance order token stages: Placed &rarr; Preparing &rarr; Ready for Pickup &rarr; Completed</p>
+          </div>
+          <button onclick="fetchAnalytics()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-xs font-semibold text-slate-200">
+            <i class="fa-solid fa-rotate"></i> Sync
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="text-xs uppercase bg-slate-800/80 text-slate-400 border-b border-slate-700">
+              <tr>
+                <th class="px-4 py-3">Token</th>
+                <th class="px-4 py-3">Customer</th>
+                <th class="px-4 py-3">Items Ordered</th>
+                <th class="px-4 py-3">Total</th>
+                <th class="px-4 py-3">Current Status</th>
+                <th class="px-4 py-3 text-right">Dispatch Action</th>
+              </tr>
+            </thead>
+            <tbody id="kitchen-table-body" class="divide-y divide-slate-800">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- CART SLIDE-OVER DRAWER -->
+  <div id="cart-drawer-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleCartDrawer()"></div>
+  <aside id="cart-drawer" class="fixed right-0 top-0 bottom-0 w-full sm:w-[480px] bg-slate-900 border-l border-slate-800 z-50 translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+    
+    <!-- Drawer Header -->
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center">
+          <i class="fa-solid fa-bag-shopping"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-white text-base">Your Dining Cart</h3>
+          <p class="text-xs text-slate-400" id="cart-items-count-label">0 items added</p>
+        </div>
+      </div>
+      <button onclick="toggleCartDrawer()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Cart Item List -->
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scrollbar">
+      <!-- Items dynamically added here -->
+    </div>
+
+    <!-- Promo Coupon Section -->
+    <div class="px-5 py-3 border-t border-slate-800 bg-slate-900/50 space-y-2">
+      <div class="flex gap-2">
+        <input type="text" id="coupon-input" placeholder="Coupon Code (e.g. CAMPUS50)" 
+               class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono uppercase text-white focus:outline-none focus:border-brand-500">
+        <button onclick="applyCouponCode()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold text-slate-100 transition">
+          Apply
+        </button>
+      </div>
+      <div class="flex gap-1.5 flex-wrap text-[10px]">
+        <button onclick="quickApplyCoupon('CAMPUS50')" class="px-2 py-0.5 rounded bg-brand-500/10 text-brand-300 border border-brand-500/30 hover:bg-brand-500/20">CAMPUS50 (Rs. 50 off on &ge;200)</button>
+        <button onclick="quickApplyCoupon('WELCOME10')" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20">WELCOME10 (10% extra)</button>
+      </div>
+      <p id="coupon-feedback" class="text-xs hidden"></p>
+    </div>
+
+    <!-- Financial Breakdown & Checkout -->
+    <div class="p-5 border-t border-slate-800 bg-slate-950 space-y-4">
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between text-slate-400">
+          <span>Subtotal</span>
+          <span class="font-mono text-slate-200" id="cart-subtotal">Rs. 0.00</span>
+        </div>
+        <div class="flex justify-between text-emerald-400">
+          <span id="cart-role-discount-label">Role Privilege Discount (5%)</span>
+          <span class="font-mono" id="cart-role-discount">- Rs. 0.00</span>
+        </div>
+        <div id="cart-coupon-row" class="flex justify-between text-amber-400 hidden">
+          <span id="cart-coupon-label">Coupon Discount</span>
+          <span class="font-mono" id="cart-coupon-discount">- Rs. 0.00</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Canteen GST (5%)</span>
+          <span class="font-mono text-slate-200" id="cart-tax">Rs. 0.00</span>
+        </div>
+        <div class="flex justify-between text-base font-extrabold text-white pt-2 border-t border-slate-800">
+          <span>Total Amount</span>
+          <span class="font-mono text-brand-400 text-lg" id="cart-grandtotal">Rs. 0.00</span>
+        </div>
+      </div>
+
+      <button onclick="openCheckoutModal()" id="btn-proceed-checkout" disabled
+              class="w-full py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-xl shadow-brand-600/30 transition flex items-center justify-center gap-2">
+        <span>Proceed to Payment</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- CHECKOUT & PAYMENT MODAL -->
+  <div id="checkout-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative">
+      <button onclick="closeCheckoutModal()" class="absolute right-5 top-5 w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-credit-card"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-white">Payment & Token Generation</h3>
+          <p class="text-xs text-slate-400">Amount Due: <span class="font-mono font-bold text-brand-400 text-sm" id="checkout-due-amount">Rs. 0.00</span></p>
+        </div>
+      </div>
+
+      <!-- Payment Method Tabs -->
+      <div class="grid grid-cols-4 gap-2 text-xs font-semibold">
+        <button onclick="setPaymentMethod('UPI')" id="paytab-UPI" class="p-2.5 rounded-xl border border-brand-500 bg-brand-600/20 text-brand-300 flex flex-col items-center gap-1">
+          <i class="fa-solid fa-qrcode text-base"></i> UPI / QR
+        </button>
+        <button onclick="setPaymentMethod('WALLET')" id="paytab-WALLET" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 flex flex-col items-center gap-1">
+          <i class="fa-solid fa-wallet text-base"></i> SmartCard
+        </button>
+        <button onclick="setPaymentMethod('CASH')" id="paytab-CASH" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 flex flex-col items-center gap-1">
+          <i class="fa-solid fa-money-bill-wave text-base"></i> Cash Desk
+        </button>
+        <button onclick="setPaymentMethod('CARD')" id="paytab-CARD" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 flex flex-col items-center gap-1">
+          <i class="fa-solid fa-credit-card text-base"></i> Card
+        </button>
+      </div>
+
+      <!-- Payment Details Box -->
+      <div id="payment-details-view" class="rounded-2xl bg-slate-950 p-4 border border-slate-800 min-h-[160px] flex flex-col justify-center text-center">
+        <!-- Rendered via JS -->
+      </div>
+
+      <button onclick="confirmOrderAndPay()" id="btn-pay-confirm"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-emerald-500 hover:from-brand-500 hover:to-emerald-400 text-white font-extrabold text-sm shadow-xl shadow-brand-500/30 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-lock"></i>
+        <span>Confirm Payment & Print Token</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS & TOKEN MODAL -->
+  <div id="success-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-brand-500/40 w-full max-w-md rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-2xl relative">
+      
+      <div class="w-16 h-16 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-3xl mx-auto ready-pulse">
+        <i class="fa-solid fa-check"></i>
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-xs uppercase font-bold tracking-widest text-brand-400">Order Placed Successfully!</span>
+        <h2 class="text-2xl font-black text-white">Your Canteen Token Number</h2>
+      </div>
+
+      <!-- Big Token Display -->
+      <div class="p-6 rounded-3xl bg-slate-950 border-2 border-brand-500/60 shadow-inner space-y-2">
+        <p class="text-xs uppercase font-bold text-slate-400">Order Token</p>
+        <p class="text-5xl font-black font-mono tracking-wider text-white" id="success-token-number">TK-101</p>
+        <p class="text-xs text-amber-400 font-medium" id="success-prep-time">Estimated wait: ~10 minutes</p>
+      </div>
+
+      <p class="text-xs text-slate-400">
+        Please watch the Live Digital Token Board. When your token turns <span class="text-emerald-400 font-bold">GREEN</span>, please proceed to Counter #1 to collect your tray!
+      </p>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <a id="btn-download-receipt" href="#" target="_blank"
+           class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-receipt text-indigo-400"></i> View / Download Tax Invoice (.txt)
+        </a>
+        <button onclick="closeSuccessAndShowBoard()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm">
+          Watch on Live Token Board
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- USER PROFILE MODAL -->
+  <div id="profile-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 space-y-5 shadow-2xl relative">
+      <button onclick="closeProfileModal()" class="absolute right-4 top-4 w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-lg font-bold text-white">Dining Profile & Role</h3>
+      
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Full Name</label>
+          <input type="text" id="prof-name" value="Rahul Sharma" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white font-medium">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Roll Number / Emp ID</label>
+          <input type="text" id="prof-id" value="CS24-105" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white font-medium">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Role & Privilege Discount</label>
+          <select id="prof-role" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white font-medium">
+            <option value="Student">Student (5% Campus Discount)</option>
+            <option value="Faculty">Faculty / Staff (10% Discount)</option>
+          </select>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-[11px] text-slate-400">Campus Wallet Balance</p>
+            <p class="text-base font-extrabold text-emerald-400" id="prof-wallet-val">Rs. 450.00</p>
+          </div>
+          <button onclick="topUpWallet()" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
+            + Top Up
+          </button>
+        </div>
+      </div>
+
+      <button onclick="saveProfile()" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs">
+        Save Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // System State
+    let menuItems = [];
+    let cart = [];
+    let activeCategory = 0;
+    let activeDietary = 'ALL';
+    let searchQuery = '';
+    let appliedCoupon = null;
+    let selectedPayment = 'UPI';
+
+    let currentUser = {
+      name: "Rahul Sharma",
+      id: "CS24-105",
+      role: "Student", // "Student" (5%) or "Faculty" (10%)
+      contact: "9876543210",
+      wallet: 450.0
+    };
+
+    // Initialize App
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchMenu();
+      fetchTokens();
+      setInterval(fetchTokens, 3000); // 3-second live queue polling
+      updateUserDisplay();
+    });
+
+    function switchTab(tabId) {
+      ['menu', 'board', 'track', 'kitchen'].forEach(t => {
+        const tabEl = document.getElementById(`tab-${t}`);
+        const navEl = document.getElementById(`nav-${t}`);
+        if (t === tabId) {
+          tabEl.classList.remove('hidden');
+          navEl.classList.add('bg-brand-600', 'text-white', 'shadow-sm');
+          navEl.classList.remove('text-slate-300', 'hover:bg-slate-700/50');
+        } else {
+          tabEl.classList.add('hidden');
+          navEl.classList.remove('bg-brand-600', 'text-white', 'shadow-sm');
+          navEl.classList.add('text-slate-300', 'hover:bg-slate-700/50');
+        }
+      });
+      if (tabId === 'kitchen') {
+        fetchAnalytics();
+      }
+    }
+
+    // Menu Retrieval & Filtering
+    async function fetchMenu() {
+      try {
+        const res = await fetch('/api/menu');
+        const data = await res.json();
+        if (data.success) {
+          menuItems = data.items;
+          renderMenu();
+        }
+      } catch (err) {
+        console.error("Failed to load menu:", err);
+      }
+    }
+
+    function renderMenu() {
+      const grid = document.getElementById('menu-grid');
+      grid.innerHTML = '';
+
+      const filtered = menuItems.filter(item => {
+        // Category filter
+        if (activeCategory !== 0 && item.categoryId !== activeCategory) return false;
+        // Dietary filter
+        if (activeDietary === 'VEG' && item.dietaryId !== 0) return false;
+        if (activeDietary === 'NON_VEG' && item.dietaryId !== 1) return false;
+        if (activeDietary === 'VEGAN' && item.dietaryId !== 2) return false;
+        // Search query
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          const matchName = item.name.toLowerCase().includes(q);
+          const matchCat = (item.category || '').toLowerCase().includes(q);
+          if (!matchName && !matchCat) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 text-center text-slate-400 space-y-2">
+            <i class="fa-solid fa-utensils text-4xl text-slate-600"></i>
+            <p class="text-sm font-semibold">No food or beverage items found matching your filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const isAvailable = item.available && item.stock > 0;
+        
+        // Dietary tag
+        let dietBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">VEG</span>';
+        if (item.dietaryId === 1) {
+          dietBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">NON-VEG</span>';
+        } else if (item.dietaryId === 2) {
+          dietBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-lime-500/20 text-lime-400 border border-lime-500/30">VEGAN</span>';
+        }
+
+        // Subtitle & icon
+        let specTag = '';
+        if (item.type === 'Food') {
+          specTag = `<span class="text-[11px] text-slate-400"><i class="fa-solid fa-pepper-hot text-amber-500"></i> ${item.spiceLevel || 'Mild'}</span>`;
+        } else if (item.type === 'Beverage') {
+          specTag = `<span class="text-[11px] text-slate-400">${item.isHot ? '<i class="fa-solid fa-mug-hot text-amber-400"></i> Hot' : '<i class="fa-solid fa-snowflake text-cyan-400"></i> Chilled'} • ${item.volumeMl || 200}ml</span>`;
+        } else if (item.type === 'Combo') {
+          specTag = `<span class="text-[11px] text-amber-400 font-semibold"><i class="fa-solid fa-gift"></i> Save Rs. ${(item.originalPrice - item.price).toFixed(0)}</span>`;
+        }
+
+        // Stock status
+        let stockHtml = `<span class="text-xs text-emerald-400"><i class="fa-solid fa-circle-check text-[10px]"></i> In Stock (${item.stock})</span>`;
+        if (!isAvailable) {
+          stockHtml = `<span class="text-xs text-red-400 font-bold"><i class="fa-solid fa-ban text-[10px]"></i> Out of Stock</span>`;
+        } else if (item.stock < 10) {
+          stockHtml = `<span class="text-xs text-amber-400 font-semibold"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Only ${item.stock} left</span>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = `rounded-2xl bg-slate-900 border border-slate-800 p-5 flex flex-col justify-between transition-all hover:border-slate-700 hover:shadow-xl ${!isAvailable ? 'opacity-60' : ''}`;
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-xs font-mono font-bold text-slate-500">#${item.id}</span>
+              ${dietBadge}
+            </div>
+
+            <div>
+              <h4 class="font-extrabold text-white text-base leading-tight">${item.name}</h4>
+              <p class="text-xs text-slate-400 mt-0.5">${item.category}</p>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              ${specTag}
+              ${stockHtml}
+            </div>
+
+            ${item.type === 'Combo' && item.includedItems ? `
+              <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-300 space-y-1">
+                <span class="font-bold text-amber-400">Includes:</span>
+                <ul class="list-disc list-inside space-y-0.5 text-slate-400">
+                  ${item.includedItems.map(si => `<li>${si}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
+            <div>
+              <span class="text-xs text-slate-400">Price</span>
+              <p class="text-lg font-black font-mono text-emerald-400">Rs. ${item.price.toFixed(2)}</p>
+            </div>
+
+            ${isAvailable ? `
+              <button onclick="addToCart(${item.id})" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-semibold text-xs shadow-md shadow-brand-600/30 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> Add
+              </button>
+            ` : `
+              <span class="text-xs text-slate-500 font-semibold px-3 py-1.5 rounded-xl bg-slate-800">Unavailable</span>
+            `}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function setCategoryFilter(catId) {
+      activeCategory = catId;
+      document.querySelectorAll('.category-pill').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white', 'border-brand-500/50');
+        btn.classList.add('bg-slate-800/60', 'text-slate-300', 'border-slate-700/60');
+      });
+      const activeBtn = document.getElementById(`cat-${catId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800/60', 'text-slate-300', 'border-slate-700/60');
+        activeBtn.classList.add('bg-slate-800', 'text-white', 'border-brand-500/50');
+      }
+      renderMenu();
+    }
+
+    function setDietaryFilter(diet) {
+      activeDietary = diet;
+      ['ALL', 'VEG', 'NON_VEG', 'VEGAN'].forEach(d => {
+        const btn = document.getElementById(`diet-${d}`);
+        if (d === diet) {
+          btn.classList.add('bg-brand-600', 'text-white');
+          btn.classList.remove('text-slate-300');
+        } else {
+          btn.classList.remove('bg-brand-600', 'text-white');
+          btn.classList.add('text-slate-300');
+        }
+      });
+      renderMenu();
+    }
+
+    function filterMenu() {
+      searchQuery = document.getElementById('menu-search-input').value;
+      renderMenu();
+    }
+
+    // Cart Operations
+    function addToCart(itemId) {
+      const item = menuItems.find(m => m.id === itemId);
+      if (!item) return;
+
+      const existing = cart.find(c => c.id === itemId);
+      if (existing) {
+        if (existing.quantity < item.stock) {
+          existing.quantity += 1;
+        } else {
+          alert(`Maximum available stock reached for ${item.name}`);
+        }
+      } else {
+        cart.push({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+          notes: ""
+        });
+      }
+      updateCartDisplay();
+    }
+
+    function updateCartQty(itemId, delta) {
+      const idx = cart.findIndex(c => c.id === itemId);
+      if (idx === -1) return;
+      cart[idx].quantity += delta;
+      if (cart[idx].quantity <= 0) {
+        cart.splice(idx, 1);
+      }
+      updateCartDisplay();
+    }
+
+    function updateCartNote(itemId, noteText) {
+      const item = cart.find(c => c.id === itemId);
+      if (item) {
+        item.notes = noteText;
+      }
+    }
+
+    function updateCartDisplay() {
+      const container = document.getElementById('cart-items-container');
+      const countLabel = document.getElementById('cart-items-count-label');
+      const headerCount = document.getElementById('header-cart-count');
+      const checkoutBtn = document.getElementById('btn-proceed-checkout');
+
+      const totalItems = cart.reduce((acc, itm) => acc + itm.quantity, 0);
+      headerCount.textContent = totalItems;
+      countLabel.textContent = `${totalItems} item(s) in tray`;
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="py-16 text-center text-slate-500 space-y-2">
+            <i class="fa-solid fa-basket-shopping text-4xl"></i>
+            <p class="text-sm">Your dining cart is empty.</p>
+            <p class="text-xs text-slate-600">Select dishes from the menu to get started.</p>
+          </div>
+        `;
+        checkoutBtn.disabled = true;
+        recalculateBill(0.0);
+        return;
+      }
+
+      checkoutBtn.disabled = false;
+      container.innerHTML = '';
+
+      let subtotal = 0.0;
+
+      cart.forEach(item => {
+        const lineTotal = item.price * item.quantity;
+        subtotal += lineTotal;
+
+        const row = document.createElement('div');
+        row.className = "p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2";
+        row.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="font-bold text-white text-xs leading-tight">${item.name}</p>
+              <p class="text-[11px] font-mono text-emerald-400">Rs. ${item.price.toFixed(2)} each</p>
+            </div>
+            <p class="font-mono font-bold text-slate-200 text-xs">Rs. ${lineTotal.toFixed(2)}</p>
+          </div>
+
+          <div class="flex items-center justify-between gap-2">
+            <input type="text" value="${item.notes || ''}" onchange="updateCartNote(${item.id}, this.value)" 
+                   placeholder="Special note (e.g. Less spicy)" 
+                   class="flex-1 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300 placeholder-slate-600 focus:outline-none focus:border-slate-700">
+            
+            <div class="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
+              <button onclick="updateCartQty(${item.id}, -1)" class="w-5 h-5 rounded text-slate-400 hover:text-white flex items-center justify-center font-bold text-xs">-</button>
+              <span class="w-6 text-center font-mono font-bold text-xs text-white">${item.quantity}</span>
+              <button onclick="updateCartQty(${item.id}, 1)" class="w-5 h-5 rounded text-slate-400 hover:text-white flex items-center justify-center font-bold text-xs">+</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      recalculateBill(subtotal);
+    }
+
+    function recalculateBill(subtotal) {
+      const discountRate = currentUser.role === 'Faculty' ? 0.10 : 0.05;
+      const userDiscount = subtotal * discountRate;
+      const discountedSubtotal = subtotal - userDiscount;
+
+      let couponDiscount = 0.0;
+      if (appliedCoupon === 'CAMPUS50' && discountedSubtotal >= 200.0) {
+        couponDiscount = 50.0;
+      } else if (appliedCoupon === 'WELCOME10') {
+        couponDiscount = discountedSubtotal * 0.10;
+      } else if (appliedCoupon === 'SNACK5' && discountedSubtotal >= 50.0) {
+        couponDiscount = 5.0;
+      }
+
+      const taxable = Math.max(0.0, discountedSubtotal - couponDiscount);
+      const tax = taxable * 0.05; // 5% GST
+      const grandTotal = taxable + tax;
+
+      document.getElementById('cart-subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
+      document.getElementById('cart-role-discount-label').textContent = `${currentUser.role} Privilege (${(discountRate * 100).toFixed(0)}%)`;
+      document.getElementById('cart-role-discount').textContent = `- Rs. ${userDiscount.toFixed(2)}`;
+
+      const couponRow = document.getElementById('cart-coupon-row');
+      if (couponDiscount > 0.0) {
+        couponRow.classList.remove('hidden');
+        document.getElementById('cart-coupon-label').textContent = `Promo Code [${appliedCoupon}]`;
+        document.getElementById('cart-coupon-discount').textContent = `- Rs. ${couponDiscount.toFixed(2)}`;
+      } else {
+        couponRow.classList.add('hidden');
+      }
+
+      document.getElementById('cart-tax').textContent = `Rs. ${tax.toFixed(2)}`;
+      document.getElementById('cart-grandtotal').textContent = `Rs. ${grandTotal.toFixed(2)}`;
+      document.getElementById('checkout-due-amount').textContent = `Rs. ${grandTotal.toFixed(2)}`;
+    }
+
+    function applyCouponCode() {
+      const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+      quickApplyCoupon(code);
+    }
+
+    function quickApplyCoupon(code) {
+      const feedback = document.getElementById('coupon-feedback');
+      feedback.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
+
+      if (code === 'CAMPUS50' || code === 'WELCOME10' || code === 'SNACK5') {
+        appliedCoupon = code;
+        feedback.classList.add('text-emerald-400');
+        feedback.textContent = `Promo code '${code}' applied successfully!`;
+      } else {
+        appliedCoupon = null;
+        feedback.classList.add('text-red-400');
+        feedback.textContent = "Invalid promo code.";
+      }
+      updateCartDisplay();
+    }
+
+    function toggleCartDrawer() {
+      const drawer = document.getElementById('cart-drawer');
+      const overlay = document.getElementById('cart-drawer-overlay');
+      const isOpen = !drawer.classList.contains('translate-x-full');
+
+      if (isOpen) {
+        drawer.classList.add('translate-x-full');
+        overlay.classList.add('hidden');
+      } else {
+        drawer.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    // Checkout & Payment
+    function openCheckoutModal() {
+      toggleCartDrawer();
+      setPaymentMethod('UPI');
+      document.getElementById('checkout-modal').classList.remove('hidden');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkout-modal').classList.add('hidden');
+    }
+
+    function setPaymentMethod(method) {
+      selectedPayment = method;
+      ['UPI', 'WALLET', 'CASH', 'CARD'].forEach(m => {
+        const btn = document.getElementById(`paytab-${m}`);
+        if (m === method) {
+          btn.className = "p-2.5 rounded-xl border border-brand-500 bg-brand-600/20 text-brand-300 flex flex-col items-center gap-1";
+        } else {
+          btn.className = "p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 flex flex-col items-center gap-1";
+        }
+      });
+
+      const dueText = document.getElementById('checkout-due-amount').textContent;
+      const detailsBox = document.getElementById('payment-details-view');
+
+      if (method === 'UPI') {
+        detailsBox.innerHTML = `
+          <div class="space-y-2">
+            <div class="w-24 h-24 bg-white p-2 rounded-xl mx-auto shadow-md">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=smartserve@campus" alt="QR" class="w-full h-full object-contain">
+            </div>
+            <p class="text-xs font-mono text-emerald-400">UPI ID: smartserve@campus</p>
+            <p class="text-[11px] text-slate-400">Scan using BHIM, Google Pay, PhonePe or Paytm</p>
+          </div>
+        `;
+      } else if (method === 'WALLET') {
+        detailsBox.innerHTML = `
+          <div class="space-y-2">
+            <i class="fa-solid fa-id-card text-3xl text-emerald-400"></i>
+            <p class="text-xs font-bold text-slate-200">College SmartCard / Dining Wallet</p>
+            <p class="text-xs text-slate-400">Available Balance: <span class="font-mono text-emerald-400 font-bold">Rs. ${currentUser.wallet.toFixed(2)}</span></p>
+            <p class="text-[11px] text-slate-500">Amount will be debited instantly on order confirmation.</p>
+          </div>
+        `;
+      } else if (method === 'CASH') {
+        detailsBox.innerHTML = `
+          <div class="space-y-2">
+            <i class="fa-solid fa-cash-register text-3xl text-amber-400"></i>
+            <p class="text-xs font-bold text-slate-200">Cash Payment at Counter #1</p>
+            <p class="text-[11px] text-slate-400">Please present your generated token slip to the cashier to pay and collect.</p>
+          </div>
+        `;
+      } else if (method === 'CARD') {
+        detailsBox.innerHTML = `
+          <div class="space-y-2 text-left max-w-xs mx-auto">
+            <div>
+              <label class="text-[10px] text-slate-400">Card Number</label>
+              <input type="text" placeholder="**** **** **** 4821" value="4532 8920 1824 4821" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 font-mono">
+            </div>
+            <div class="flex gap-2">
+              <div class="flex-1">
+                <label class="text-[10px] text-slate-400">Exp</label>
+                <input type="text" placeholder="MM/YY" value="08/28" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 font-mono">
+              </div>
+              <div class="w-20">
+                <label class="text-[10px] text-slate-400">CVV</label>
+                <input type="password" placeholder="***" value="782" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 font-mono">
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function confirmOrderAndPay() {
+      const btn = document.getElementById('btn-pay-confirm');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Order & Token...`;
+
+      const payload = {
+        customer: {
+          name: currentUser.name,
+          role: currentUser.role,
+          id: currentUser.id,
+          contact: currentUser.contact
+        },
+        items: cart,
+        couponCode: appliedCoupon || "",
+        payment: {
+          method: selectedPayment,
+          ref: `REF-${Math.floor(Math.random() * 900000 + 100000)}`
+        }
+      };
+
+      try {
+        const res = await fetch('/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          const ord = data.order;
+          closeCheckoutModal();
+          cart = [];
+          appliedCoupon = null;
+          updateCartDisplay();
+
+          // Deduct wallet if wallet selected
+          if (selectedPayment === 'WALLET') {
+            currentUser.wallet = Math.max(0, currentUser.wallet - ord.grandTotal);
+            updateUserDisplay();
+          }
+
+          // Show Success Modal
+          document.getElementById('success-token-number').textContent = `TK-${ord.tokenNumber}`;
+          document.getElementById('success-prep-time').textContent = `Estimated wait: ~${ord.prepMinutes} minutes`;
+          document.getElementById('btn-download-receipt').href = ord.receiptFile;
+          document.getElementById('success-modal').classList.remove('hidden');
+
+          fetchMenu(); // Refresh stock counts
+          fetchTokens(); // Refresh live queue
+        } else {
+          alert("Order failed: " + (data.error || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Server connection error: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-lock"></i> Confirm Payment & Print Token`;
+      }
+    }
+
+    function closeSuccessAndShowBoard() {
+      document.getElementById('success-modal').classList.add('hidden');
+      switchTab('board');
+    }
+
+    // Live Digital Token Queue Board
+    async function fetchTokens() {
+      try {
+        const res = await fetch('/api/tokens');
+        const data = await res.json();
+        if (data.success) {
+          renderTokenBoard(data.active, data.completed);
+        }
+      } catch (err) {}
+    }
+
+    function renderTokenBoard(activeOrders, completedOrders) {
+      const cookingList = document.getElementById('board-cooking-list');
+      const readyList = document.getElementById('board-ready-list');
+      const doneList = document.getElementById('board-completed-list');
+
+      const cookingOrders = activeOrders.filter(o => o.statusCode === 1 || o.statusCode === 2);
+      const readyOrders = activeOrders.filter(o => o.statusCode === 3);
+
+      document.getElementById('board-cooking-count').textContent = cookingOrders.length;
+      document.getElementById('board-ready-count').textContent = readyOrders.length;
+      document.getElementById('board-completed-count').textContent = completedOrders.length;
+      document.getElementById('nav-active-count').textContent = activeOrders.length;
+
+      // Render Cooking
+      if (cookingOrders.length === 0) {
+        cookingList.innerHTML = `<p class="text-xs text-slate-500 py-10 text-center">No active kitchen orders cooking.</p>`;
+      } else {
+        cookingList.innerHTML = cookingOrders.map(o => `
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-base font-black font-mono text-amber-400">TK-${o.tokenNumber}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                ${o.status}
+              </span>
+            </div>
+            <p class="text-xs font-bold text-slate-200">${o.customer.name}</p>
+            <p class="text-[11px] text-slate-400 truncate">${o.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</p>
+          </div>
+        `).join('');
+      }
+
+      // Render Ready
+      if (readyOrders.length === 0) {
+        readyList.innerHTML = `<p class="text-xs text-slate-500 py-10 text-center">No orders awaiting pickup.</p>`;
+      } else {
+        readyList.innerHTML = readyOrders.map(o => `
+          <div class="p-4 rounded-2xl bg-emerald-950/40 border-2 border-emerald-500/70 shadow-lg shadow-emerald-500/20 ready-pulse space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-black font-mono text-emerald-400 tracking-wider">TK-${o.tokenNumber}</span>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-bold uppercase">READY</span>
+            </div>
+            <p class="text-xs font-bold text-white">${o.customer.name} (${o.customer.role})</p>
+            <p class="text-xs text-emerald-300 font-semibold"><i class="fa-solid fa-bell"></i> Please collect at Counter #1!</p>
+          </div>
+        `).join('');
+      }
+
+      // Render Completed
+      if (completedOrders.length === 0) {
+        doneList.innerHTML = `<p class="text-xs text-slate-500 py-10 text-center">No orders completed today yet.</p>`;
+      } else {
+        doneList.innerHTML = completedOrders.slice(0, 5).map(o => `
+          <div class="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-slate-400">TK-${o.tokenNumber}</span>
+            <span class="text-xs text-slate-300 truncate max-w-[120px]">${o.customer.name}</span>
+            <span class="text-[10px] text-emerald-500 font-semibold"><i class="fa-solid fa-check"></i> Done</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Token Lookup
+    async function trackTokenSubmit() {
+      const tokenInput = document.getElementById('track-token-input').value;
+      if (!tokenInput) return;
+      const box = document.getElementById('track-result-box');
+      box.classList.remove('hidden');
+      box.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center"><i class="fa-solid fa-spinner fa-spin"></i> Checking system records...</p>`;
+
+      try {
+        const res = await fetch(`/api/token_status?token=${tokenInput}`);
+        const data = await res.json();
+        if (data.success) {
+          const o = data.order;
+          box.innerHTML = `
+            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs text-slate-400">Token Number</span>
+                  <p class="text-2xl font-black font-mono text-emerald-400">TK-${o.tokenNumber}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${o.statusCode === 3 ? 'bg-emerald-500 text-slate-950' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">
+                  ${o.status}
+                </span>
+              </div>
+              <div class="text-xs space-y-1 text-slate-300 border-t border-slate-800 pt-3">
+                <p><strong class="text-slate-400">Customer:</strong> ${o.customer.name} (${o.customer.role})</p>
+                <p><strong class="text-slate-400">Placed At:</strong> ${o.timestamp}</p>
+                <p><strong class="text-slate-400">Items:</strong> ${o.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</p>
+                <p><strong class="text-slate-400">Total Bill:</strong> Rs. ${o.grandTotal.toFixed(2)}</p>
+              </div>
+              <div class="pt-2">
+                <a href="${o.receiptFile}" target="_blank" class="text-xs font-semibold text-brand-400 hover:underline">
+                  <i class="fa-solid fa-file-invoice"></i> View Saved Tax Receipt
+                </a>
+              </div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = `
+            <div class="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-semibold">
+              ${data.error}
+            </div>
+          `;
+        }
+      } catch (err) {
+        box.innerHTML = `<p class="text-xs text-red-400 text-center">Error connecting to server.</p>`;
+      }
+    }
+
+    // Kitchen Portal & Analytics
+    async function fetchAnalytics() {
+      try {
+        const [analRes, tokenRes] = await Promise.all([
+          fetch('/api/analytics'),
+          fetch('/api/tokens')
+        ]);
+        const anal = await analRes.json();
+        const tokens = await tokenRes.json();
+
+        if (anal.success) {
+          document.getElementById('stat-revenue').textContent = `Rs. ${anal.totalRevenue.toFixed(2)}`;
+          document.getElementById('stat-orders').textContent = anal.totalOrders;
+          document.getElementById('stat-active').textContent = anal.activeCount;
+          document.getElementById('stat-ratio').textContent = `${anal.studentOrders} St / ${anal.facultyOrders} Fac`;
+        }
+
+        if (tokens.success) {
+          renderKitchenTable(tokens.active);
+        }
+      } catch (err) {}
+    }
+
+    function renderKitchenTable(activeOrders) {
+      const tbody = document.getElementById('kitchen-table-body');
+      if (activeOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500 text-xs">No active orders awaiting kitchen dispatch.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = activeOrders.map(o => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="px-4 py-3 font-mono font-bold text-amber-400">TK-${o.tokenNumber}</td>
+          <td class="px-4 py-3 font-medium text-white">${o.customer.name}</td>
+          <td class="px-4 py-3 text-xs text-slate-300">${o.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</td>
+          <td class="px-4 py-3 font-mono text-slate-200">Rs. ${o.grandTotal.toFixed(2)}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${o.statusCode === 3 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">
+              ${o.status}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="advanceTokenStatus(${o.tokenNumber})" 
+                    class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition shadow-sm">
+              ${o.statusCode === 1 ? 'Start Cooking' : (o.statusCode === 2 ? 'Mark Ready' : 'Complete')}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function advanceTokenStatus(tokenNumber) {
+      try {
+        const res = await fetch('/api/advance_token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tokenNumber })
+        });
+        const data = await res.json();
+        if (data.success) {
+          fetchAnalytics();
+          fetchTokens();
+        }
+      } catch (err) {}
+    }
+
+    // Profile Management
+    function updateUserDisplay() {
+      document.getElementById('nav-user-name').textContent = currentUser.name;
+      const discount = currentUser.role === 'Faculty' ? '10% OFF' : '5% OFF';
+      document.getElementById('nav-user-role').textContent = `${currentUser.role} (${discount})`;
+      document.getElementById('prof-wallet-val').textContent = `Rs. ${currentUser.wallet.toFixed(2)}`;
+
+      const initials = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('nav-user-avatar').textContent = initials;
+      updateCartDisplay();
+    }
+
+    function openProfileModal() {
+      document.getElementById('prof-name').value = currentUser.name;
+      document.getElementById('prof-id').value = currentUser.id;
+      document.getElementById('prof-role').value = currentUser.role;
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    function saveProfile() {
+      currentUser.name = document.getElementById('prof-name').value.trim() || "Rahul Sharma";
+      currentUser.id = document.getElementById('prof-id').value.trim() || "CS24-105";
+      currentUser.role = document.getElementById('prof-role').value;
+      updateUserDisplay();
+      closeProfileModal();
+    }
+
+    function topUpWallet() {
+      currentUser.wallet += 500.0;
+      updateUserDisplay();
+      alert("Added Rs. 500.00 to your Campus Wallet!");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,2 @@
+2026-11-05 20:18:06;1001;101;Rahul Sharma;Student;103.241;2;UPI / QR Payment
+2026-11-05 20:23:31;1001;101;Ananya Sen;Student;189.53;2;UPI / QR Payment

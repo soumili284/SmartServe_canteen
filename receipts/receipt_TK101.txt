@@ -1,0 +1,32 @@
+=================================================================
+              SMARTSERVE COLLEGE CANTEEN SYSTEM                 
+                   TAX INVOICE & ORDER TOKEN                     
+=================================================================
+ Order ID:       #1001
+ Token Number:   >>> [ TK-101 ] <<<
+ Order Status:   Order Placed
+ Date & Time:    2026-11-05 20:23:31
+ Customer:       Ananya Sen (Student)
+ Contact No:     9830012345
+-----------------------------------------------------------------
+ Qty | Description                     | Unit Price | Total Price
+-----------------------------------------------------------------
+   1 | Campus Hunger Buster Combo      |     160.00 |     160.00
+     Note: "With extra dip"
+   2 | Adrak Masala Chai               |      15.00 |      30.00
+     Note: "Strong adrak"
+-----------------------------------------------------------------
+ Subtotal:                                            Rs. 190.00
+ Privilege Discount (Student):       -        Rs. 9.50
+ Canteen GST (5%):                                      Rs. 9.03
+-----------------------------------------------------------------
+ FINAL AMOUNT PAYABLE:                                Rs. 189.53
+=================================================================
+ Payment Method: UPI / QR Payment
+ Transaction ID: UPI100041REF
+ Payment Status: PAID & VERIFIED
+ Est. Pickup Time: ~11 minutes from order placement
+ Please watch the Live Digital Token Board for 'TK-101'!
+=================================================================
+        Thank you for choosing SmartServe Canteen System!        
+=================================================================

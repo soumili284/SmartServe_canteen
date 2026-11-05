@@ -1,0 +1,18 @@
+# Compiled binaries and object files
+bin/*.exe
+*.exe
+*.o
+*.obj
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE & Editor settings
+.vscode/
+.idea/
+
+# OS specific files
+Thumbs.db
+Desktop.ini
+.DS_Store
